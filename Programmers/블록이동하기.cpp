@@ -1,26 +1,27 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <queue>
 #include <vector>
 
 using namespace std;
 int N, MIN = 987654321, dy[4] = { -1,1,0,0 }, dx[4] = { 0,0,-1,1 };
 int nextIdx[4] = { 3,2,0,1 };
-bool visited[101][101][4];	//[±âÁØy][±âÁØx][¹æÇâ]-»ó,ÇÏ,ÁÂ,¿ì
+bool visited[101][101][4];	//[ê¸°ì¤€y][ê¸°ì¤€x][ë°©í–¥]-ìƒ,í•˜,ì¢Œ,ìš°
 vector<vector<int>> map;
 struct Robot {
-	// ±âÁØ, ³¡, ½Ã°£
+	// ê¸°ì¤€, ë, ì‹œê°„
 	int sy, sx, ey, ex, dir, time;
 };
 
 bool move(int nsy, int nsx, int ney, int nex, int i) {
+	// cout << nsy << ", " << nsx << " -- " << ney << ", " << nex << endl;
+	// cout << map[nsy][nsx] << "   " << map[ney][nex] << endl << endl;
+	// ê¸°ì¤€ ë²”ìœ„ ê²€ì‚¬
+	if (nsy<0 || nsx<0 || nsy>=N || nsx>=N) return false;
 
-	// ±âÁØ ¹üÀ§ °Ë»ç
-	if (nsy<1 || nsx<1 || nsy>N || nsx>N) return false;
+	// ë ë²”ìœ„ ê²€ì‚¬
+	if (ney<0 || nex<0 || ney>=N || nex>=N) return false;
 
-	// ³¡ ¹üÀ§ °Ë»ç
-	if (ney<1 || nex<1 || ney>N || nex>N) return false;
-
-	//´Ù 0ÀÏ¶§¸¸ °¡´É
+	//ë‹¤ 0ì¼ë•Œë§Œ ê°€ëŠ¥
 	if (map[nsy][nsx] || map[ney][nex]) return false;
 
 	return true;
@@ -28,39 +29,44 @@ bool move(int nsy, int nsx, int ney, int nex, int i) {
 
 void bfs() {
 	queue<Robot> q;
-	//1,1±âÁØ ¿À¸¥ÂÊ¹æÇâ
-	visited[1][1][3] = true;
-	q.push({ 1,1,1,2,3,0 });
+	//0,1ê¸°ì¤€ ì™¼ìª½ë°©í–¥
+	visited[0][1][2] = true;
+	q.push({ 0,1,0,0,2,0 });
 
 	while (!q.empty()) {
 		Robot cur = q.front();
 		q.pop();
 
-		if ((cur.sy == N && cur.sx == N) || (cur.ey == N && cur.ex == N)) {
+		cout << cur.sy << ", " << cur.sx << " --- " << cur.ey<<", "<<cur.ex << endl;
+
+		if ((cur.sy == N-1 && cur.sx == N-1) || (cur.ey == N-1 && cur.ex == N-1)) {
 			MIN = cur.time < MIN ? cur.time : MIN;
 			continue;
 		}
 
-		// Á÷¼± ÀÌµ¿È®ÀÎ
+		// ì§ì„  ì´ë™í™•ì¸
 		for (int i = 0; i < 4; i++) {
 			int nsy = cur.sy + dy[i], nsx = cur.sx + dx[i];
 			int ney = cur.ey + dy[i], nex = cur.ex + dx[i];
+			
 			if (move(nsy, nsx, ney, nex, i)) {
-				if (visited[nsy][nsx][cur.dir]) {
+				if (!visited[nsy][nsx][cur.dir]) {
+					//cout << nsy << ", " << nsx << " -- " << ney << ", " << nex << endl;
+
 					visited[nsy][nsx][cur.dir] = true;
 					q.push({ nsy, nsx, ney, nex, cur.dir, cur.time + 1 });
 				}
 			}
 		}
 
-		// È¸Àü ÀÌµ¿ È®ÀÎ
+		// íšŒì „ ì´ë™ í™•ì¸
 		if (cur.dir <= 1) {
-			//»ó,ÇÏ -> ¿Ş, ¿À·Î ÀÌµ¿°¡´ÉÇÏ¸é µÊ
+			//ìƒ,í•˜ -> ì™¼, ì˜¤ë¡œ ì´ë™ê°€ëŠ¥í•˜ë©´ ë¨
 			for (int i = 2; i <= 3; i++) {
 				int nsy = cur.sy + dy[i], nsx = cur.sx + dx[i];
 				int ney = cur.ey + dy[i], nex = cur.ex + dx[i];
 				if (move(nsy, nsx, ney, nex, i)) {
-					if (visited[cur.sy][cur.sx][i]) {
+					if (!visited[cur.sy][cur.sx][i]) {
 						visited[cur.sy][cur.sx][i] = true;
 						q.push({ cur.sy, cur.sx, nsy, nsx, i, cur.time + 1 });
 					}
@@ -68,12 +74,12 @@ void bfs() {
 			}
 		}
 		else {
-			//ÁÂ,¿ì -> »ó, ÇÏ·Î ÀÌµ¿°¡´ÉÇÏ¸é µÊ
+			//ì¢Œ,ìš° -> ìƒ, í•˜ë¡œ ì´ë™ê°€ëŠ¥í•˜ë©´ ë¨
 			for (int i = 0; i <= 1; i++) {
 				int nsy = cur.sy + dy[i], nsx = cur.sx + dx[i];
 				int ney = cur.ey + dy[i], nex = cur.ex + dx[i];
 				if (move(nsy, nsx, ney, nex, i)) {
-					if (visited[cur.sy][cur.sx][i]) {
+					if (!visited[cur.sy][cur.sx][i]) {
 						visited[cur.sy][cur.sx][i] = true;
 						q.push({ cur.sy, cur.sx, nsy, nsx, i, cur.time + 1 });
 					}
