@@ -351,3 +351,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+Programmers/kbds1.cpp
+Programmers/kbds2.cpp
+Programmers/kbds3.cpp
+Programmers/kbds4.cpp
